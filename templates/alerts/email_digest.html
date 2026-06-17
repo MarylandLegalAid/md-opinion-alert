@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"></head>
+<body style="font-family: Calibri, Arial, sans-serif; max-width: 700px; margin: 0 auto; color: #222; line-height: 1.5;">
+  <h1 style="color: #002868; border-bottom: 3px solid #BF0A30; padding-bottom: 6px;">
+    Maryland Appellate Opinion Alert</h1>
+  <p><strong>{{ cards|length }} new opinion{{ cards|length|pluralize }}</strong>
+     matched your keywords since your last digest.</p>
+
+  {% for card in cards %}
+    <div style="background: #f4f6fb; border-left: 5px solid #002868; padding: 14px 18px; margin: 18px 0; border-radius: 5px;">
+      <div style="font-size: 1.1em; font-weight: bold;">
+        <a href="{{ card.opinion.source_url }}" style="color: #002868;">
+          {{ card.opinion.case_name|default:card.opinion.docket }}</a>
+      </div>
+      <div style="color: #555; font-size: 0.88em; margin: 3px 0 10px;">
+        {{ card.opinion.get_opinion_type_display }}
+        {% if card.opinion.court %} &bull; {{ card.opinion.court }}{% endif %}
+        {% if card.opinion.docket %} &bull; Docket: {{ card.opinion.docket }}{% endif %}
+        {% if card.opinion.filed_date %} &bull; Filed {{ card.opinion.filed_date }}{% endif %}
+      </div>
+      <div>
+        {% for hit in card.keywords %}
+          <span style="display: inline-block; background: #002868; color: #fff; padding: 2px 9px; border-radius: 3px; font-size: 0.82em; margin: 2px 3px 4px 0;">{{ hit.keyword.text }} ×{{ hit.count }}</span>
+        {% endfor %}
+      </div>
+      {% for hit in card.keywords|slice:":6" %}
+        {% for snippet in hit.snippets|slice:":2" %}
+          <div style="background: #fff; border: 1px solid #ccd; padding: 7px 11px; margin: 5px 0; font-size: 0.88em; border-radius: 4px;">{{ snippet }}</div>
+        {% endfor %}
+      {% endfor %}
+    </div>
+  {% endfor %}
+
+  <p style="margin-top: 36px; font-size: 0.82em; color: #888;">
+    You receive this {{ cadence }} digest from MD Opinion Alert.
+    <a href="{{ site_url }}/preferences/">Change cadence or turn it off</a> ·
+    <a href="{{ site_url }}/keywords/">Manage keywords</a> ·
+    <a href="{{ site_url }}/">Open the dashboard</a>
+  </p>
+</body>
+</html>

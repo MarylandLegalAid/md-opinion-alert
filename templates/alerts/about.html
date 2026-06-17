@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}About — MD Opinion Alert{% endblock %}
+
+{% block content %}
+<h1>About MD Opinion Alert</h1>
+
+<h2>What this is</h2>
+
+<p>
+    Every weekday morning, this app checks
+    <a href="https://www.mdcourts.gov">mdcourts.gov</a> for newly published
+    opinions — reported and unreported — from the Supreme Court of Maryland and
+    the Appellate Court of Maryland. It searches the full text of each new
+    opinion for the keywords you're watching and collects the results in two
+    places:
+</p>
+
+<ul>
+    <li>
+        <strong>Your <a href="{% url 'home' %}">dashboard</a></strong> shows
+        every opinion that has ever matched your keywords, newest first, with
+        filters by keyword, court, opinion type, and date. Matches are shown in
+        context, so you can tell at a glance whether an opinion is worth
+        opening.
+    </li>
+    <li>
+        <strong>Email digests</strong> deliver just the <em>new</em> matches —
+        opinions the app picked up since your last digest. Daily digests go out
+        weekday mornings; weekly digests go out Mondays. Empty digests are never
+        sent.
+    </li>
+</ul>
+
+<h2>How to use it</h2>
+
+<ol>
+    <li>
+        Add the terms you care about on the
+        <a href="{% url 'keywords:manage' %}">Keywords</a> page — your own
+        keywords, shared lists, or both. New keywords are matched against the
+        whole back catalog immediately, so your dashboard fills in right away.
+    </li>
+    <li>
+        Pick how often you want email on the
+        <a href="{% url 'preferences' %}">Preferences</a> page: daily, weekly,
+        or dashboard-only.
+    </li>
+    <li>
+        That's it. Check your dashboard whenever you like; the email will nudge
+        you when something new matches.
+    </li>
+</ol>
+
+<h2>Where this came from</h2>
+
+<p>
+    This app was the brainchild of Zafar Shah, our Advocacy Director for the
+    Human Right to Housing. Zafar wanted a reliable way to know, without
+    manually checking court websites, when Maryland's appellate courts said
+    something that touched his work. So he did something a little unusual: he
+    sat down with an AI coding assistant and "vibe coded" a working prototype —
+    no formal spec, no project plan, just a clear idea of what he needed and a
+    willingness to tinker until the prototype did it.
+</p>
+
+<p>
+    He shared that prototype with John Jeffcott, our IT Director, who
+    volunteered to turn it into what you're using now: a proper internal web app
+    with single sign-on, shared keyword lists, scheduled ingestion, and email
+    digests.
+</p>
+
+<p>
+    Here's the part we actually want you to take away:
+    <strong>you don't need to build a prototype.</strong> Zafar's prototype was
+    great, but the thing that made this project happen wasn't the code — it was
+    that he could describe exactly what he needed.
+    <em
+        >"Watch these two courts, match new opinions against my keywords, and
+        email me when something hits."</em
+    >
+    A clear, well-specified idea like that is all it takes to get started.
+</p>
+
+<p>
+    So if there's a tool you wish existed — something that would save you time,
+    catch things you currently catch by hand, or just make a tedious part of
+    your week less tedious — bring it to IT. Worst case, you'll have an
+    interesting conversation. Best case, you'll be reading the "where this came
+    from" page of your own idea.
+</p>
+{% endblock %}

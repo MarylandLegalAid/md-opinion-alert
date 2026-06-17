@@ -1,0 +1,25 @@
+<div id="personal-keywords">
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <p>
+    {% for kw in personal_keywords %}
+      <span class="tag">
+        {{ kw.text }}
+        <button class="tag-x"
+                hx-post="{% url 'keywords:delete_personal' kw.pk %}"
+                hx-target="#personal-keywords" hx-swap="outerHTML"
+                aria-label="Remove {{ kw.text }}">×</button>
+      </span>
+    {% empty %}
+      <span class="muted">No personal keywords yet.</span>
+    {% endfor %}
+  </p>
+  <form hx-post="{% url 'keywords:add_personal' %}"
+        hx-target="#personal-keywords" hx-swap="outerHTML">
+    <input type="text" name="text" maxlength="200"
+           placeholder="Add a keyword or phrase…" required>
+    <button type="submit" class="primary">Add</button>
+  </form>
+  <p class="muted">Matching is whole-word and case-insensitive
+    (<em>rent</em> won’t match <em>parent</em> or <em>renter</em>); multi-word
+    phrases are supported.</p>
+</div>

@@ -1,0 +1,27 @@
+<div class="card" id="list-{{ kw_list.pk }}">
+  <div class="card-head">
+    <strong>{{ kw_list.name }}</strong>
+    <span class="muted">{{ kw_list.keyword_count }} keyword{{ kw_list.keyword_count|pluralize }}</span>
+    {% if kw_list.subscribed %}
+      <button hx-post="{% url 'keywords:unsubscribe' kw_list.pk %}"
+              hx-target="#list-{{ kw_list.pk }}" hx-swap="outerHTML">
+        Unsubscribe
+      </button>
+    {% else %}
+      <button class="primary"
+              hx-post="{% url 'keywords:subscribe' kw_list.pk %}"
+              hx-target="#list-{{ kw_list.pk }}" hx-swap="outerHTML">
+        Subscribe
+      </button>
+    {% endif %}
+  </div>
+  {% if kw_list.description %}<p class="muted">{{ kw_list.description }}</p>{% endif %}
+  <details>
+    <summary>Show keywords</summary>
+    <p>
+      {% for kw in kw_list.keywords.all %}
+        <span class="tag">{{ kw.text }}</span>
+      {% endfor %}
+    </p>
+  </details>
+</div>

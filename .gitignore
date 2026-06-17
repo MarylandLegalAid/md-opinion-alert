@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+*.pyc
+.env
+staticfiles/
+db.sqlite3
+.DS_Store
+
+# PoC kept for reference: track only the source + readme, not the 45MB of
+# PyInstaller binaries.
+poc/*
+!poc/readme.txt
+!poc/MDCourtAlertSetup.exe_extracted/
+poc/MDCourtAlertSetup.exe_extracted/*
+!poc/MDCourtAlertSetup.exe_extracted/md_opinion_alert.py
+var/

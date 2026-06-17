@@ -1,0 +1,130 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  {% get_static_prefix as STATIC_PREFIX %}
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}MD Opinion Alert{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{{ STATIC_PREFIX }}favicon.png">
+  <script src="https://unpkg.com/htmx.org@2.0.4" crossorigin="anonymous"></script>
+  <style>
+    body { font-family: system-ui, sans-serif; margin: 0; color: #1a1a2e;
+           min-height: 100svh; display: flex; flex-direction: column; }
+    header { background: #1a1a2e; color: #fff; padding: 0.75rem 1.5rem;
+             display: flex; align-items: center; flex-wrap: wrap; gap: 0 1rem; }
+    header a { color: #fff; text-decoration: none; }
+    .brand { display: flex; align-items: center; gap: 0.6rem; }
+    .brand img { height: 28px; width: auto; display: block; }
+    header form { display: inline; }
+    nav { display: flex; align-items: center; flex: 1; gap: 1rem; }
+    .nav-account { margin-left: auto; display: flex; align-items: center; gap: 0.5rem; }
+    .nav-account button { background: none; border: 1px solid rgba(255, 255, 255, 0.45);
+                          color: #fff; font: inherit; font-size: 0.88em;
+                          padding: 4px 12px; border-radius: 4px; cursor: pointer; }
+    .nav-account button:hover { background: rgba(255, 255, 255, 0.12);
+                                border-color: rgba(255, 255, 255, 0.7); }
+    .nav-toggle { display: none; margin-left: auto; background: none; border: none;
+                  color: #fff; font-size: 1.4rem; line-height: 1; cursor: pointer;
+                  padding: 0.25rem 0.5rem; }
+    main { max-width: 60rem; width: 100%; box-sizing: border-box;
+           margin: 2rem auto; padding: 0 1.5rem; flex: 1; }
+    footer { position: sticky; bottom: 0; z-index: 10; margin-top: auto;
+             border-top: 1px solid #e3e6ee; background: #fafbfd;
+             padding: 0.75rem 1.5rem; display: flex; justify-content: flex-end;
+             align-items: center; gap: 0.6rem; }
+    footer .muted { font-size: 0.8em; }
+    footer img { height: 38px; width: auto; display: block; }
+    .card { background: #f4f6fb; border-left: 5px solid #002868;
+            padding: 14px 18px; margin: 18px 0; border-radius: 5px; }
+    .card-head { display: flex; align-items: center; gap: 1rem; }
+    .card-head button { margin-left: auto; }
+    .tag { display: inline-block; background: #002868; color: #fff;
+           padding: 2px 9px; border-radius: 3px; font-size: 0.82em;
+           margin: 2px 3px 4px 0; }
+    .tag-x { background: none; border: none; color: #fff; cursor: pointer;
+             font-size: 1em; padding: 0 0 0 4px; }
+    .muted { color: #667; font-size: 0.9em; }
+    .error { color: #BF0A30; }
+    button.primary { background: #002868; color: #fff; border: none;
+                     padding: 6px 14px; border-radius: 4px; cursor: pointer; }
+    summary { cursor: pointer; color: #002868; font-weight: bold; }
+    mark { background: #ffe066; padding: 1px 2px; }
+    input[type=text] { padding: 6px 10px; border: 1px solid #aab;
+                       border-radius: 4px; min-width: 18rem; max-width: 100%;
+                       box-sizing: border-box; }
+    .snippet { background: #fff; border: 1px solid #ccd; padding: 7px 11px;
+               margin: 5px 0; font-size: 0.88em; border-radius: 4px; }
+    .new-badge { background: #BF0A30; color: #fff; font-size: 0.7em;
+                 padding: 2px 6px; border-radius: 3px; vertical-align: middle; }
+    .title { font-size: 1.1em; font-weight: bold; }
+    .filters { display: flex; flex-wrap: wrap; align-items: flex-end;
+               gap: 0.75rem; margin: 1rem 0; }
+    .filters .field { display: flex; flex-direction: column; gap: 0.25rem;
+                      font-size: 0.78em; font-weight: 600; color: #556; }
+    .filters .field-group { display: flex; align-items: flex-end; gap: 0.75rem; }
+    .filters select, .filters input { padding: 6px 8px; border: 1px solid #aab;
+                                      border-radius: 4px; min-width: 0; font: inherit;
+                                      font-size: 1rem; background: #fff; color: inherit;
+                                      min-height: 2.3rem; box-sizing: border-box; }
+    @media (max-width: 640px) {
+      header { padding: 0.6rem 1rem; }
+      main { margin: 1.25rem auto; padding: 0 1rem; }
+      .nav-toggle { display: block; }
+      nav { display: none; flex-basis: 100%; flex-direction: column;
+            align-items: flex-start; gap: 0.85rem; padding: 0.75rem 0 0.25rem; }
+      nav.open { display: flex; }
+      .nav-account { margin-left: 0; }
+      input[type=text] { min-width: 0; width: 100%; }
+      .filters { display: grid; gap: 0.6rem;
+                 grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .filters .field-wide, .filters .field-group, .filters button { grid-column: 1 / -1; }
+      .filters .field-group { gap: 0.6rem; }
+      .filters .field-group .field { flex: 1; min-width: 0; }
+      .filters select, .filters input { width: 100%; }
+      footer { justify-content: center; }
+    }
+    /* iOS Safari renders empty date inputs as blank boxes; show a hint instead */
+    @supports (-webkit-touch-callout: none) {
+      input[type=date][data-empty]::before { content: "mm/dd/yyyy"; color: #99a; }
+    }
+  </style>
+</head>
+<body hx-headers='{"X-CSRFToken": "{{ csrf_token }}"}'>
+  <header>
+    <a class="brand" href="{% url 'home' %}"><img src="{{ STATIC_PREFIX }}favicon.png" alt=""><strong>MD Opinion Alert</strong></a>
+    {% if user.is_authenticated %}
+      <button class="nav-toggle" aria-label="Menu" aria-expanded="false" aria-controls="site-nav" onclick="var n=document.getElementById('site-nav');this.setAttribute('aria-expanded',n.classList.toggle('open'))">&#9776;</button>
+      <nav id="site-nav">
+        <a href="{% url 'home' %}">Dashboard</a>
+        <a href="{% url 'keywords:manage' %}">Keywords</a>
+        <a href="{% url 'preferences' %}">Preferences</a>
+        <a href="{% url 'about' %}">About</a>
+        {% if user.is_staff %}<a href="{% url 'admin:index' %}">Admin</a>{% endif %}
+        <span class="nav-account">
+          {{ user }} ·
+          <form method="post" action="{% url 'oidc_logout' %}">
+            {% csrf_token %}<button type="submit">Sign out</button>
+          </form>
+        </span>
+      </nav>
+    {% endif %}
+  </header>
+  <main>{% block content %}{% endblock %}</main>
+  <footer>
+    <span class="muted">A product of</span>
+    <a href="https://www.mdlab.org" target="_blank" rel="noopener"><img src="{{ STATIC_PREFIX }}mla-logo.png" alt="Maryland Legal Aid"></a>
+  </footer>
+  <script>
+    document.querySelectorAll('input[type=date]').forEach(function (el) {
+      var update = function () {
+        if (el.value) { el.removeAttribute('data-empty'); }
+        else { el.setAttribute('data-empty', ''); }
+      };
+      update();
+      el.addEventListener('input', update);
+      el.addEventListener('change', update);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Keywords — MD Opinion Alert{% endblock %}
+
+{% block content %}
+<h1>Keywords</h1>
+<p>Subscribe to shared lists curated by administrators, or add your own
+personal keywords. Your dashboard shows matches across the whole stored
+corpus; email digests only ever cover newly published opinions.</p>
+
+<h2>Shared lists</h2>
+{% for kw_list in lists %}
+  {% include "keywords/_list_card.html" %}
+{% empty %}
+  <p>No shared lists yet.</p>
+{% endfor %}
+
+<h2>Personal keywords</h2>
+{% include "keywords/_personal.html" %}
+{% endblock %}
