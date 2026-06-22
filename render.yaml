@@ -1,104 +1,171 @@
 # Render Blueprint.
-
-services:
-  - type: cron
-    name: digest-daily
-    runtime: python
-    # 12:30 UTC, weekdays — after ingest-daily finishes.
-    schedule: "30 12 * * 1-5"
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python manage.py send_daily_digests"
-    envVars:
+#
+# Generated from the live Render services (export 2026-06-22) so that
+# connecting a Blueprint adopts the existing resources by name with no
+# config drift. Secrets and other per-environment values are marked
+# `sync: false` and managed in the Render dashboard, not in source.
+version: "1"
+projects:
+- name: MD Opinion Alert
+  environments:
+  - name: Production
+    services:
+    - type: cron
+      name: ingest-daily
+      runtime: python
+      repo: https://github.com/MarylandLegalAid/md-opinion-alert
+      plan: starter
+      envVars:
       - key: DJANGO_SECRET_KEY
         sync: false
-      - key: DEBUG
-        value: "false"
-      - key: ALLOWED_HOSTS
-        value: "cron"
       - key: DATABASE_URL
         fromDatabase:
           name: md-opinion-db
           property: connectionString
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: DEBUG
+        sync: false
+      region: oregon
+      buildCommand: pip install -r requirements.txt
+      # 11:00 UTC = 07:00 ET during EDT (08:00 during EST), weekdays.
+      startCommand: python manage.py ingest_opinions
+      schedule: 0 11 * * 1-5
+      autoDeployTrigger: commit
+    - type: cron
+      name: digest-weekly
+      runtime: python
+      repo: https://github.com/MarylandLegalAid/md-opinion-alert
+      plan: starter
+      envVars:
+      - key: SITE_URL
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: AZURE_TENANT_ID
+        sync: false
+      - key: AZURE_CLIENT_SECRET
+        sync: false
+      - key: AZURE_CLIENT_ID
+        sync: false
+      - key: ADMIN_APP_ROLE
+        sync: false
+      - key: ACS_SENDER_ADDRESS
+        sync: false
+      - key: ACS_ENDPOINT
+        sync: false
       - key: EMAIL_BACKEND_CHOICE
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: md-opinion-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: DEBUG
+        sync: false
+      region: oregon
+      buildCommand: pip install -r requirements.txt
+      # Mondays 12:00 UTC.
+      startCommand: python manage.py send_weekly_digests
+      schedule: 0 12 * * 1
+      autoDeployTrigger: commit
+    - type: web
+      name: md-opinion-web
+      runtime: python
+      repo: https://github.com/MarylandLegalAid/md-opinion-alert
+      plan: starter
+      envVars:
+      - key: ALLOWED_HOSTS
+        sync: false
+      - key: AZURE_TENANT_ID
+        sync: false
+      - key: AZURE_CLIENT_ID
+        sync: false
+      - key: AZURE_CLIENT_SECRET
         sync: false
       - key: SITE_URL
         sync: false
-
-  - type: cron
-    name: digest-weekly
-    runtime: python
-    # Mondays 12:00 UTC.
-    schedule: "0 12 * * 1"
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python manage.py send_weekly_digests"
-    envVars:
-      - key: DJANGO_SECRET_KEY
+      - key: DEFAULT_FROM_EMAIL
         sync: false
-      - key: DEBUG
-        value: "false"
-      - key: ALLOWED_HOSTS
-        value: "cron"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: md-opinion-db
-          property: connectionString
       - key: EMAIL_BACKEND_CHOICE
         sync: false
-      - key: SITE_URL
+      - key: ACS_SENDER_ADDRESS
         sync: false
-
-  - type: cron
-    name: ingest-daily
-    runtime: python
-    # 11:00 UTC = 07:00 ET during EDT (08:00 during EST — acceptable
-    # drift), weekdays.
-    schedule: "0 11 * * 1-5"
-    buildCommand: "pip install -r requirements.txt"
-    startCommand: "python manage.py ingest_opinions"
-    envVars:
-      - key: DJANGO_SECRET_KEY
-        sync: false
-      - key: DEBUG
-        value: "false"
-      - key: ALLOWED_HOSTS
-        value: "cron"
-      - key: DATABASE_URL
-        fromDatabase:
-          name: md-opinion-db
-          property: connectionString
-
-
-  - type: web
-    name: md-opinion-web
-    runtime: python
-    plan: starter
-    buildCommand: "pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate"
-    startCommand: "gunicorn config.wsgi:application"
-    healthCheckPath: /healthz
-    envVars:
-      - key: DJANGO_SECRET_KEY
-        generateValue: true
-      - key: DEBUG
-        value: "false"
-      # The onrender.com hostname is added automatically via
-      # RENDER_EXTERNAL_HOSTNAME; set any custom domain in the Render
-      # dashboard (kept out of source).
-      - key: ALLOWED_HOSTS
-        sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: md-opinion-db
-          property: connectionString
-      - key: OIDC_RP_CLIENT_ID
-        sync: false
-      - key: OIDC_RP_CLIENT_SECRET
+      - key: ACS_ENDPOINT
         sync: false
       - key: ENTRA_TENANT_ID
         sync: false
+      - key: OIDC_RP_CLIENT_SECRET
+        sync: false
+      - key: OIDC_RP_CLIENT_ID
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DEBUG
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: md-opinion-db
+          property: connectionString
       - key: ADMIN_APP_ROLE
-        value: Admin
-
-databases:
-  - name: md-opinion-db
-    plan: basic-256mb
-    postgresMajorVersion: "16"
+        sync: false
+      region: oregon
+      buildCommand: pip install -r requirements.txt && python manage.py collectstatic
+        --noinput && python manage.py migrate
+      startCommand: gunicorn config.wsgi:application
+      healthCheckPath: /healthz
+      domains:
+      - opinion-alert.mdlab.org
+      autoDeployTrigger: commit
+    - type: cron
+      name: digest-daily
+      runtime: python
+      repo: https://github.com/MarylandLegalAid/md-opinion-alert
+      plan: starter
+      envVars:
+      - key: SITE_URL
+        sync: false
+      - key: DEFAULT_FROM_EMAIL
+        sync: false
+      - key: AZURE_TENANT_ID
+        sync: false
+      - key: AZURE_CLIENT_SECRET
+        sync: false
+      - key: AZURE_CLIENT_ID
+        sync: false
+      - key: ADMIN_APP_ROLE
+        sync: false
+      - key: ACS_SENDER_ADDRESS
+        sync: false
+      - key: ACS_ENDPOINT
+        sync: false
+      - key: EMAIL_BACKEND_CHOICE
+        sync: false
+      - key: DJANGO_SECRET_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: md-opinion-db
+          property: connectionString
+      - key: ALLOWED_HOSTS
+        sync: false
+      region: oregon
+      buildCommand: pip install -r requirements.txt
+      # 12:30 UTC, weekdays - after ingest-daily finishes.
+      startCommand: python manage.py send_daily_digests
+      schedule: 30 12 * * 1-5
+      autoDeployTrigger: commit
+    databases:
+    - name: md-opinion-db
+      databaseName: md_opinion_db
+      user: md_opinion_db_user
+      plan: basic-256mb
+      region: oregon
+      ipAllowList:
+      - source: 0.0.0.0/0
+        description: everywhere
+      postgresMajorVersion: "16"
+      diskSizeGB: 15
